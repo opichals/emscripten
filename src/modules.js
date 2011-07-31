@@ -1,6 +1,7 @@
 // Various namespace-like modules
 
 var LLVM_STYLE = null;
+if (typeof global !== 'undefined') global.LLVM_STYLE = LLVM_STYLE;
 
 var LLVM = {
   LINKAGES: set('private', 'linker_private', 'linker_private_weak', 'linker_private_weak_def_auto', 'internal',
@@ -17,6 +18,7 @@ var LLVM = {
   INTRINSICS_32: set('_llvm_memcpy_p0i8_p0i8_i64', '_llvm_memmove_p0i8_p0i8_i64', '_llvm_memset_p0i8_i64'), // intrinsics that need args converted to i32 in I64_MODE 1
 };
 LLVM.GLOBAL_MODIFIERS = set(keys(LLVM.LINKAGES).concat(['constant', 'global', 'hidden']));
+if (typeof global !== 'undefined') global.LLVM = LLVM;
 
 var Debugging = {
   processMetadata: function(lines) {
@@ -189,10 +191,12 @@ var Debugging = {
     return sourceFile.split('/').slice(-1)[0] + ':' + (approx ? '~' : '') + this.llvmLineToSourceLine[lineNum];
   }
 };
+if (typeof global !== 'undefined') global.Debugging = Debugging;
 
 var Variables = {
   globals: null
 };
+if (typeof global !== 'undefined') global.Variables = Variables;
 
 var Types = {
   types: {},
@@ -224,6 +228,7 @@ var Types = {
 
   needAnalysis: {} // Types noticed during parsing, that need analysis
 };
+if (typeof global !== 'undefined') global.Types = Types;
 
 var Functions = {
   // The list of function datas which are being processed in the jsifier, currently
@@ -259,6 +264,7 @@ var Functions = {
     }
   }
 };
+if (typeof global !== 'undefined') global.Functions = Functions;
 
 var LibraryManager = {
   library: null,
@@ -291,6 +297,7 @@ var LibraryManager = {
                                          && !(ident in Functions.implementedFunctions);
   }
 };
+if (typeof global !== 'undefined') global.LibraryManager = LibraryManager;
 
 // Safe way to access a C define. We check that we don't add library functions with missing defines.
 function cDefine(key) {

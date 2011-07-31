@@ -5,15 +5,39 @@ try {
   gcparam('maxBytes', 1024*1024*1024);
 } catch(e) {}
 
+if (typeof process !== 'undefined') {
+    print = console.log; // sys.print;
+
+    snarf = function(f) {
+        var fc = require('fs').readFileSync(f, 'utf8');
+        return globalize(fc);
+    };
+    globalize = function(f) {
+        //return '(function(g) {global=g;'+f+'})(global);';
+        return f.replace(/^function\s+([^\(]+)/mg, "\nglobal.$1 = function $1");
+    };
+    set = function() {
+        var s = {};
+        [].slice.call(arguments).forEach(function(a) { s[a] = true; });
+        return s;
+    };
+    load = function(f) { process.compile(snarf(f), f); };
+}
+
 // Prep - allow this to run in both SpiderMonkey and V8
 if (!this['load']) {
   load = function(f) { eval(snarf(f)) };
 }
 if (!this['read']) {
-  read = function(f) { snarf(f) };
+  read = function(f) { return snarf(f) };
 }
 if (!this['arguments']) {
-  arguments = scriptArgs;
+ // nodejs
+ if (typeof process !== 'undefined') {
+     arguments = process.argv.slice(2);
+ } else {
+     arguments = scriptArgs;
+ }
 }
 
 // Basic utilities
@@ -33,6 +57,7 @@ for (setting in settings) {
 }
 
 var CONSTANTS = { 'QUANTUM_SIZE': QUANTUM_SIZE };
+if (typeof global !== 'undefined') global.CONSTANTS = CONSTANTS;
 
 if (CORRECT_SIGNS >= 2) {
   CORRECT_SIGNS_LINES = set(CORRECT_SIGNS_LINES); // for fast checking

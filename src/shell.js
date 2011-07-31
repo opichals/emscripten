@@ -12,6 +12,14 @@
 if (!this['Module']) {
   this['Module'] = {};
 }
+// nodejs
+if (typeof process !== 'undefined') {
+    if (typeof global !== 'undefined') global.Module = this['Module'];
+    var scriptArgs = process.argv.slice(2);
+}
+// define global for the browser as all functions are there
+if (typeof global === 'undefined') this['global'] = this;
+
 if (!Module.arguments) {
   try {
     Module.arguments = scriptArgs;

@@ -433,6 +433,45 @@ function getValue(ptr, type) {
 }
 Module['getValue'] = getValue;
 
+// This processes a JS string into a C-line array of numbers, 0-terminated.
+// For LLVM-originating strings, see parser.js:parseLLVMString function
+function intArrayFromString(stringy, dontAddNull) {
+  var ret = [];
+  var t;
+  var i = 0;
+  while (i < stringy.length) {
+    var chr = stringy.charCodeAt(i);
+    if (chr > 0xFF) {
+#if ASSERTIONS
+        assert(false, 'Character code ' + chr + ' (' + stringy[i] + ')  at offset ' + i + ' not in 0x00-0xFF.');
+#endif
+      chr &= 0xFF;
+    }
+    ret.push(chr);
+    i = i + 1;
+  }
+  if (!dontAddNull) {
+    ret.push(0);
+  }
+  return ret;
+}
+Module['intArrayFromString'] = intArrayFromString;
+
+function intArrayToString(array) {
+  var ret = [];
+  for (var i = 0; i < array.length; i++) {
+    var chr = array[i];
+    if (chr > 0xFF) {
+#if ASSERTIONS
+        assert(false, 'Character code ' + chr + ' (' + String.fromCharCode(chr) + ')  at offset ' + i + ' not in 0x00-0xFF.');
+#endif
+      chr &= 0xFF;
+    }
+    ret.push(String.fromCharCode(chr));
+  }
+  return ret.join('');
+}
+
 // Allocates memory for some data and initializes it properly.
 
 var ALLOC_NORMAL = 0; // Tries to use _malloc()
@@ -657,46 +696,7 @@ if (typeof console === 'object' && typeof console.log === 'function') {
 } else if (typeof print === 'undefined') {
   this['print'] = function(){}; // harmless no-op
 }
-
-// This processes a JS string into a C-line array of numbers, 0-terminated.
-// For LLVM-originating strings, see parser.js:parseLLVMString function
-function intArrayFromString(stringy, dontAddNull) {
-  var ret = [];
-  var t;
-  var i = 0;
-  while (i < stringy.length) {
-    var chr = stringy.charCodeAt(i);
-    if (chr > 0xFF) {
-#if ASSERTIONS
-        assert(false, 'Character code ' + chr + ' (' + stringy[i] + ')  at offset ' + i + ' not in 0x00-0xFF.');
-#endif
-      chr &= 0xFF;
-    }
-    ret.push(chr);
-    i = i + 1;
-  }
-  if (!dontAddNull) {
-    ret.push(0);
-  }
-  return ret;
-}
-Module['intArrayFromString'] = intArrayFromString;
-
-function intArrayToString(array) {
-  var ret = [];
-  for (var i = 0; i < array.length; i++) {
-    var chr = array[i];
-    if (chr > 0xFF) {
-#if ASSERTIONS
-        assert(false, 'Character code ' + chr + ' (' + String.fromCharCode(chr) + ')  at offset ' + i + ' not in 0x00-0xFF.');
-#endif
-      chr &= 0xFF;
-    }
-    ret.push(String.fromCharCode(chr));
-  }
-  return ret.join('');
-}
-Module['intArrayToString'] = intArrayToString;
+if (typeof global !== 'undefined') global.print = this['print']; // nodejs
 
 {{{ unSign }}}
 {{{ reSign }}}

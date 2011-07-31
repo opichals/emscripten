@@ -143,6 +143,7 @@ Substrate.prototype = {
 var Framework = {
   currItem: null
 };
+if (typeof global !== 'undefined') global.Framework = Framework;
 
 Actor = function() { };
 Actor.prototype = {
