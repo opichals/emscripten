@@ -922,7 +922,15 @@ function makeGetValue(ptr, pos, type, noNeedFirst, unsigned, ignore, align) {
     if (type[0] === '#') type = type.substr(1);
     return 'SAFE_HEAP_LOAD(' + offset + ', ' + type + ', ' + (!!unsigned+0) + ', ' + ((!checkSafeHeap() || ignore)|0) + ')';
   } else {
-    return makeGetSlabs(ptr, type, false, unsigned)[0] + '[' + getHeapOffset(offset, type) + ']';
+    offset = getHeapOffset(offset, type);
+
+    var len = getNativeTypeSize(type, true);
+    var res = '';
+    for(var i=0; i<len; i++) {
+        res = '('+makeGetSlabs(ptr, type, false, unsigned)[0] + '[' + offset + (i?'+'+i:'') + ']' + (i?'<<'+i*8:'') + ")" + (res?"|"+res:'');
+    }
+    return res;
+    //return makeGetSlabs(ptr, type, false, unsigned)[0] + '[' + getHeapOffset(offset, type) + ']';
   }
 }
 
@@ -997,7 +1005,18 @@ function makeSetValue(ptr, pos, value, type, noNeedFirst, ignore, align) {
     if (type[0] === '#') type = type.substr(1);
     return 'SAFE_HEAP_STORE(' + offset + ', ' + value + ', ' + type + ', ' + ((!checkSafeHeap() || ignore)|0) + ')';
   } else {
-    return makeGetSlabs(ptr, type, true).map(function(slab) { return slab + '[' + getHeapOffset(offset, type) + ']=' + value }).join('; ');
+//<<<<<<< HEAD
+//    return makeGetSlabs(ptr, type, true).map(function(slab) { return slab + '[' + getHeapOffset(offset, type) + ']=' + value }).join('; ');
+//=======
+    offset = getHeapOffset(offset, type);
+    var len = getNativeTypeSize(type, true);
+    var res = '';
+    for(var i=0; i<len; i++) {
+        res += ' ' + makeGetSlabs(ptr, type, true).map(function(slab) { return slab + '[' + offset + (len-i-1?'+'+(len-i-1):'') + '] = (' + value + (len-i-1>0? '>>'+(len-i-1)*8:'') + ')&0xff' }).join('; ') + ';';
+    }
+    return res;
+    // return makeGetSlabs(ptr, type, true).map(function(slab) { return slab + '[' + getHeapOffset(offset, type) + ']=' + value }).join('; ') + ';';
+//>>>>>>> 2e42b50... Correct pointer casting.
   }
 }
 

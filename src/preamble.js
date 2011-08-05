@@ -491,19 +491,24 @@ function allocate(slab, types, allocator) {
     size = slab.length;
   }
 
-  var ret = [_malloc, Runtime.stackAlloc, Runtime.staticAlloc][allocator === undefined ? ALLOC_STATIC : allocator](Math.max(size, 1));
-
   var singleType = typeof types === 'string' ? types : null;
+#if ASSERTIONS
+    assert(singleType, 'Not a single type?');
+#endif
 
-  var i = 0, type;
+
+  var ret = [_malloc, Runtime.stackAlloc, Runtime.staticAlloc][allocator === undefined ? ALLOC_STATIC : allocator](Math.max(size * Runtime.getNativeTypeSize(singleType), 1));
+
+  var i = 0, ri = 0, type;
   while (i < size) {
     var curr = zeroinit ? 0 : slab[i];
+    type = singleType || types[i];
 
     if (typeof curr === 'function') {
       curr = Runtime.getFunctionIndex(curr);
+      type = 'i32'; // function pointers are 4 bytes
     }
 
-    type = singleType || types[i];
     if (type === 0) {
       i++;
       continue;
@@ -516,8 +521,9 @@ function allocate(slab, types, allocator) {
     if (type == 'i64') type = 'i32'; // special case: we have one i32 here, and one i32 later
 #endif
 
-    setValue(ret+i, curr, type);
-    i += Runtime.getNativeTypeSize(type);
+    setValue(ret+ri, curr, type);
+    ri += Runtime.getNativeTypeSize(type);
+    i++;
   }
 
   return ret;
