@@ -400,6 +400,13 @@ LibraryManager.library = {
     }
   },
 
+  atol: function(ascii) {
+    return parseInt(Pointer_stringify(ascii), 10);
+  },
+  llvm_objectsize_i32: function(obj, type) {
+    return -1;
+  },
+
   // ==========================================================================
   // dirent.h
   // ==========================================================================
@@ -3105,6 +3112,7 @@ LibraryManager.library = {
   fopen64: 'fopen',
   __01fopen64_: 'fopen',
   __01freopen64_: 'freopen',
+  __01_fopen$UNIX2003_: 'fopen',
   __01fseeko64_: 'fseek',
   __01ftello64_: 'ftell',
   __01tmpfile64_: 'tmpfile',
@@ -3610,6 +3618,7 @@ LibraryManager.library = {
   llvm_memcpy_i64: 'memcpy',
   llvm_memcpy_p0i8_p0i8_i32: 'memcpy',
   llvm_memcpy_p0i8_p0i8_i64: 'memcpy',
+  __memcpy_chk: 'memcpy',
 
   memmove__deps: ['memcpy'],
   memmove: function(dest, src, num, idunno) {
@@ -3634,6 +3643,7 @@ LibraryManager.library = {
   llvm_memset_i32: 'memset',
   llvm_memset_p0i8_i32: 'memset',
   llvm_memset_p0i8_i64: 'memset',
+  __memset_chk: 'memset',
 
   strlen: function(ptr) {
     return String_len(ptr);
@@ -3668,6 +3678,8 @@ LibraryManager.library = {
     } while ({{{ makeGetValue('psrc', 'i-1', 'i8') }}} != 0);
     return pdest;
   },
+  __strcpy_chk: 'strcpy',
+
   stpcpy: function(pdest, psrc) {
     var i = 0;
     do {
@@ -3686,6 +3698,7 @@ LibraryManager.library = {
     }
     return pdest;
   },
+  __strncpy_chk: 'strncpy',
 
   strcat__deps: ['strlen'],
   strcat: function(pdest, psrc) {
