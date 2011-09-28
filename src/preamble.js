@@ -492,12 +492,8 @@ function allocate(slab, types, allocator) {
   }
 
   var singleType = typeof types === 'string' ? types : null;
-#if ASSERTIONS
-    assert(singleType, 'Not a single type?');
-#endif
 
-
-  var ret = [_malloc, Runtime.stackAlloc, Runtime.staticAlloc][allocator === undefined ? ALLOC_STATIC : allocator](Math.max(size * Runtime.getNativeTypeSize(singleType), 1));
+  var ret = [_malloc, Runtime.stackAlloc, Runtime.staticAlloc][allocator === undefined ? ALLOC_STATIC : allocator](Math.max(size * (singleType ? Runtime.getNativeTypeSize(singleType) : 4), 1));
 
   var i = 0, ri = 0, type;
   while (i < size) {
