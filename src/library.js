@@ -401,7 +401,8 @@ LibraryManager.library = {
   },
 
   atol: function(ascii) {
-    return parseInt(Pointer_stringify(ascii), 10);
+    var ptr = {{{ makeGetValue('ascii', '0', 'i8*') }}};
+    return parseInt(Pointer_stringify(ptr), 10);
   },
   llvm_objectsize_i32: function(obj, type) {
     return -1;
