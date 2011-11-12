@@ -3635,10 +3635,11 @@ LibraryManager.library = {
   llvm_memmove_p0i8_p0i8_i64: 'memmove',
 
   memset__inline: function(ptr, value, num) {
-    return makeSetValues(ptr, 0, value, 'null', num);
+    return ptr + '; /*memset*/ ' + makeSetValues(ptr, 0, value, 'i8', num);
   },
   memset: function(ptr, value, num) {
-    {{{ makeSetValues('ptr', '0', 'value', 'null', 'num') }}}
+    {{{ makeSetValues('ptr', '0', 'value', 'i8', 'num') }}}
+    return ptr;
   },
   llvm_memset_i32: 'memset',
   llvm_memset_p0i8_i32: 'memset',
